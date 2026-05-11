@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Veggie Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --text: #1a1a1a;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #4CAF50;
+    --accent-hover: #43a047;
+    --accent-soft: #e8f5e9;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    padding: 24px 20px 60px;
+  }
+
+  .container {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-top: 24px;
+  }
+
+  h1 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Counter */
+  .counter-wrap {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .counter {
+    font-size: 96px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text);
+    letter-spacing: -3px;
+  }
+
+  .counter .current {
+    color: var(--accent);
+  }
+
+  .counter .divider,
+  .counter .total {
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  .counter-label {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* Progress bar */
+  .progress-track {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.35s ease;
+    border-radius: 999px;
+  }
+
+  /* Add Button */
+  .add-section {
+    margin-bottom: 40px;
+  }
+
+  .btn-add {
+    width: 100%;
+    padding: 16px 20px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn-add:hover {
+    background: var(--accent-hover);
+  }
+
+  .btn-add:active {
+    background: var(--accent-hover);
+  }
+
+  /* Input form */
+  .input-form {
+    display: none;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .input-form.active {
+    display: flex;
+  }
+
+  .input-form input {
+    flex: 1;
+    padding: 16px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s ease;
+    min-width: 0;
+  }
+
+  .input-form input:focus {
+    border-color: var(--accent);
+  }
+
+  .btn-submit, .btn-cancel {
+    padding: 0 18px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+  }
+
+  .btn-submit {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-submit:hover { background: var(--accent-hover); }
+
+  .btn-cancel {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1.5px solid var(--border);
+    padding: 0 14px;
+  }
+
+  .btn-cancel:hover {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  /* Error message */
+  .feedback {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--text-muted);
+    min-height: 20px;
+    text-align: center;
+  }
+
+  .feedback.error { color: #d97706; }
+
+  /* Items list */
+  .items-section h2 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .items-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+  }
+
+  .item-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    animation: pop-in 0.25s ease;
+  }
+
+  @keyframes pop-in {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .empty-state {
+    color: var(--text-muted);
+    font-size: 14px;
+    font-style: italic;
+  }
+
+  /* Success Screen */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    animation: fade-in 0.5s ease;
+  }
+
+  .success-screen.active {
+    display: block;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .check-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 24px auto 32px;
+  }
+
+  .check-icon svg {
+    width: 40px;
+    height: 40px;
+    stroke: var(--accent);
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: draw-check 0.6s ease 0.2s both;
+  }
+
+  @keyframes draw-check {
+    from { stroke-dasharray: 50; stroke-dashoffset: 50; }
+    to { stroke-dasharray: 50; stroke-dashoffset: 0; }
+  }
+
+  .success-message {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .success-subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  .success-list-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  /* Hide main when success */
+  .main-view.hidden { display: none; }
+
+  /* Tab bar */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--border);
+    padding: 4px;
+    border-radius: 12px;
+    margin-bottom: 32px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .tab.active {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  /* History view */
+  .history-view { display: none; }
+  .history-view.active { display: block; }
+
+  .history-empty {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-style: italic;
+    padding: 40px 20px;
+  }
+
+  .history-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .history-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .history-entry.current {
+    border-color: var(--accent);
+  }
+
+  .history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
+    gap: 12px;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .history-week {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .history-week-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .history-week-tag {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .history-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .history-count {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .history-count.done {
+    color: var(--accent);
+    font-size: 18px;
+  }
+
+  .chevron {
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .history-entry.open .chevron {
+    transform: rotate(180deg);
+  }
+
+  .history-body {
+    display: none;
+    padding: 4px 16px 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .history-entry.open .history-body {
+    display: block;
+  }
+
+  .history-body .items-list {
+    padding-top: 14px;
+  }
+
+  .history-body-empty {
+    padding-top: 14px;
+    font-size: 14px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* Shake animation for duplicate input */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+
+  .input-form.shake input {
+    animation: shake 0.4s ease;
+    border-color: #d97706;
+  }
+
+  /* Category sections */
+  .category-section {
+    margin-bottom: 24px;
+  }
+
+  .category-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .category-heading {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  /* Delete-mode pill (with X button) */
+  .item-pill {
+    position: relative;
+    transition: padding 0.18s ease;
+  }
+
+  .item-pill.deletable {
+    padding-right: 8px;
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .pill-delete {
+    display: none;
+    margin-left: 8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .item-pill.deletable .pill-delete {
+    display: inline-flex;
+  }
+
+  /* Hint shown while in delete mode */
+  .delete-hint {
+    display: none;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .delete-hint.active {
+    display: block;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+    animation: fade-in 0.18s ease;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .modal-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .modal-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease;
+  }
+
+  .modal-btn-cancel {
+    background: var(--bg);
+    color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+
+  .modal-btn-cancel:hover { background: var(--border); }
+
+  .modal-btn-confirm {
+    background: #dc2626;
+    color: white;
+  }
+
+  .modal-btn-confirm:hover { background: #b91c1c; }
+
+  /* Mobile tweaks */
+  @media (max-width: 420px) {
+    .counter { font-size: 80px; letter-spacing: -2px; }
+    h1 { font-size: 16px; }
+    .success-message { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Veggie Tracker</h1>
+    </header>
+
+    <!-- Tab bar -->
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-view="tracker">Tracker</button>
+      <button class="tab" data-view="history">Meine Wochen</button>
+    </nav>
+
+    <!-- Main View -->
+    <main class="main-view" id="mainView">
+      <div class="counter-wrap">
+        <div class="counter">
+          <span class="current" id="counterCurrent">0</span><span class="divider"> / </span><span class="total">30</span>
+        </div>
+        <div class="counter-label">verschiedene Gemüse &amp; Früchte diese Woche</div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <div class="add-section">
+        <button class="btn-add" id="btnAdd">Heute eintragen</button>
+        <form class="input-form" id="inputForm" autocomplete="off">
+          <input
+            type="text"
+            id="inputItem"
+            placeholder="z.B. Karotte, Apfel, Spinat …"
+            maxlength="40"
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+          />
+          <button type="submit" class="btn-submit">OK</button>
+          <button type="button" class="btn-cancel" id="btnCancel">✕</button>
+        </form>
+        <div class="feedback" id="feedback"></div>
+      </div>
+
+      <section class="items-section">
+        <h2>Diese Woche gegessen</h2>
+        <div class="delete-hint" id="deleteHint">Tippe das ✕ zum Löschen oder lang drücken zum Verlassen</div>
+        <div id="itemsContainer"></div>
+      </section>
+    </main>
+
+    <!-- Success View -->
+    <section class="success-screen" id="successScreen">
+      <div class="check-icon">
+        <svg viewBox="0 0 24 24">
+          <polyline points="4,12 10,18 20,7"></polyline>
+        </svg>
+      </div>
+      <div class="success-message">Geschafft! 🎉</div>
+      <div class="success-subtitle">
+        Du hast diese Woche 30 verschiedene Gemüse &amp; Früchte gegessen.
+      </div>
+      <h3 class="success-list-title">Deine 30 Items</h3>
+      <div id="successList"></div>
+    </section>
+
+    <!-- History View -->
+    <section class="history-view" id="historyView">
+      <ul class="history-list" id="historyList"></ul>
+    </section>
+  </div>
+
+  <!-- Delete confirmation modal -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-title" id="modalTitle">Willst du dieses Gemüse/Obst wirklich löschen?</div>
+      <div class="modal-sub" id="modalSub"></div>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-cancel" id="modalCancel">Abbrechen</button>
+        <button class="modal-btn modal-btn-confirm" id="modalConfirm">Löschen</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  'use strict';
+
+  const STORAGE_KEY = 'veggie-tracker-v1';
+  const HISTORY_KEY = 'veggie_history';
+  const GOAL = 30;
+  const LONG_PRESS_MS = 500;
+
+  // --- Classifier ---
+  // Lowercase keyword → category. Substring match (case-insensitive) on normalized input.
+  const CATEGORY_KEYWORDS = {
+    // Obst (fruit)
+    'apfel': 'obst', 'birne': 'obst', 'banane': 'obst', 'orange': 'obst', 'mandarine': 'obst',
+    'clementine': 'obst', 'zitrone': 'obst', 'limette': 'obst', 'grapefruit': 'obst',
+    'pampelmuse': 'obst', 'pomelo': 'obst', 'kiwi': 'obst', 'ananas': 'obst', 'mango': 'obst',
+    'papaya': 'obst', 'guave': 'obst', 'maracuja': 'obst', 'passionsfrucht': 'obst',
+    'lychee': 'obst', 'litschi': 'obst', 'drachenfrucht': 'obst', 'pitaya': 'obst',
+    'granatapfel': 'obst', 'kaki': 'obst', 'feige': 'obst', 'dattel': 'obst', 'rosine': 'obst',
+    'pflaume': 'obst', 'zwetschge': 'obst', 'mirabelle': 'obst', 'aprikose': 'obst',
+    'pfirsich': 'obst', 'nektarine': 'obst', 'kirsche': 'obst', 'sauerkirsche': 'obst',
+    'weintraube': 'obst', 'traube': 'obst', 'erdbeere': 'obst', 'himbeere': 'obst',
+    'brombeere': 'obst', 'blaubeere': 'obst', 'heidelbeere': 'obst', 'johannisbeere': 'obst',
+    'stachelbeere': 'obst', 'preiselbeere': 'obst', 'cranberry': 'obst', 'holunder': 'obst',
+    'wassermelone': 'obst', 'honigmelone': 'obst', 'cantaloupe': 'obst', 'melone': 'obst',
+    'kokosnuss': 'obst', 'kokos': 'obst', 'sharon': 'obst', 'physalis': 'obst',
+    'rhabarber': 'obst', 'avocado': 'obst', 'olive': 'obst',
+    // Hülsenfrüchte (legumes)
+    'linse': 'huelsen', 'kichererbse': 'huelsen', 'bohne': 'huelsen', 'kidneybohne': 'huelsen',
+    'schwarze bohne': 'huelsen', 'weiße bohne': 'huelsen', 'weisse bohne': 'huelsen',
+    'mungobohne': 'huelsen', 'mungo': 'huelsen', 'adzukibohne': 'huelsen', 'sojabohne': 'huelsen',
+    'soja': 'huelsen', 'edamame': 'huelsen', 'tofu': 'huelsen', 'tempeh': 'huelsen',
+    'erbse': 'huelsen', 'zuckererbse': 'huelsen', 'kaiserschote': 'huelsen',
+    'erdnuss': 'huelsen', 'lupine': 'huelsen',
+    // Gemüse (vegetables) — default fallback, but explicit entries help robustness
+    'karotte': 'gemuese', 'möhre': 'gemuese', 'moehre': 'gemuese', 'mohrrübe': 'gemuese',
+    'sellerie': 'gemuese', 'pastinake': 'gemuese', 'petersilienwurzel': 'gemuese',
+    'rettich': 'gemuese', 'radieschen': 'gemuese', 'rote bete': 'gemuese', 'rote rübe': 'gemuese',
+    'kohlrabi': 'gemuese', 'kohl': 'gemuese', 'weißkohl': 'gemuese', 'weisskohl': 'gemuese',
+    'rotkohl': 'gemuese', 'wirsing': 'gemuese', 'spitzkohl': 'gemuese', 'rosenkohl': 'gemuese',
+    'blumenkohl': 'gemuese', 'brokkoli': 'gemuese', 'romanesco': 'gemuese', 'pak choi': 'gemuese',
+    'chinakohl': 'gemuese', 'grünkohl': 'gemuese', 'gruenkohl': 'gemuese',
+    'spinat': 'gemuese', 'mangold': 'gemuese', 'rucola': 'gemuese', 'feldsalat': 'gemuese',
+    'eisbergsalat': 'gemuese', 'kopfsalat': 'gemuese', 'romanasalat': 'gemuese',
+    'endivie': 'gemuese', 'chicorée': 'gemuese', 'chicoree': 'gemuese', 'radicchio': 'gemuese',
+    'salat': 'gemuese',
+    'gurke': 'gemuese', 'zucchini': 'gemuese', 'kürbis': 'gemuese', 'kuerbis': 'gemuese',
+    'hokkaido': 'gemuese', 'butternut': 'gemuese',
+    'aubergine': 'gemuese', 'paprika': 'gemuese', 'peperoni': 'gemuese', 'chili': 'gemuese',
+    'tomate': 'gemuese', 'cherrytomate': 'gemuese',
+    'zwiebel': 'gemuese', 'frühlingszwiebel': 'gemuese', 'fruehlingszwiebel': 'gemuese',
+    'lauchzwiebel': 'gemuese', 'schalotte': 'gemuese', 'knoblauch': 'gemuese', 'lauch': 'gemuese',
+    'porree': 'gemuese', 'bärlauch': 'gemuese', 'baerlauch': 'gemuese',
+    'kartoffel': 'gemuese', 'süßkartoffel': 'gemuese', 'suesskartoffel': 'gemuese',
+    'topinambur': 'gemuese', 'yamswurzel': 'gemuese', 'yams': 'gemuese',
+    'pilz': 'gemuese', 'champignon': 'gemuese', 'steinpilz': 'gemuese', 'pfifferling': 'gemuese',
+    'shiitake': 'gemuese', 'austernpilz': 'gemuese',
+    'spargel': 'gemuese', 'artischocke': 'gemuese', 'fenchel': 'gemuese',
+    'mais': 'gemuese', 'okra': 'gemuese',
+    'ingwer': 'gemuese', 'kurkuma': 'gemuese',
+    'kresse': 'gemuese', 'algen': 'gemuese', 'wakame': 'gemuese', 'nori': 'gemuese'
+  };
+
+  function classify(rawName) {
+    const lower = rawName.toLowerCase().trim();
+    // Multi-word entries first (longest match), then single-token contains
+    const keys = Object.keys(CATEGORY_KEYWORDS).sort((a, b) => b.length - a.length);
+    for (const key of keys) {
+      if (lower === key || lower.includes(key)) {
+        return CATEGORY_KEYWORDS[key];
+      }
+    }
+    // Heuristic fallbacks for unknown items
+    if (/beere$|frucht$|apfel$/.test(lower)) return 'obst';
+    if (/bohne$|linse$|erbse$/.test(lower)) return 'huelsen';
+    // Default: vegetable (most common category)
+    return 'gemuese';
+  }
+
+  const CATEGORY_LABELS = {
+    gemuese: 'Gemüse',
+    obst: 'Obst',
+    huelsen: 'Hülsenfrüchte'
+  };
+  const CATEGORY_ORDER = ['gemuese', 'obst', 'huelsen'];
+
+  // Normalize stored items: tolerate both legacy string format and new object format.
+  function normalizeItem(entry) {
+    if (typeof entry === 'string') {
+      return { name: entry, category: classify(entry) };
+    }
+    if (entry && typeof entry === 'object' && typeof entry.name === 'string') {
+      return {
+        name: entry.name,
+        category: entry.category || classify(entry.name)
+      };
+    }
+    return null;
+  }
+
+  function normalizeItems(arr) {
+    if (!Array.isArray(arr)) return [];
+    return arr.map(normalizeItem).filter(Boolean);
+  }
+
+  // --- ISO Week calculation ---
+  function getISOWeekKey(date) {
+    date = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    // Thursday in current week decides the year
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    const weekNum = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+    return `${date.getUTCFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+  }
+
+  // --- Storage ---
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveState(state) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) { /* ignore quota errors */ }
+  }
+
+  function loadHistory() {
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === 'object') ? parsed : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveHistory(history) {
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    } catch (e) { /* ignore */ }
+  }
+
+  // Archive a completed week into history, but only if it has items.
+  function archiveWeek(weekKey, items) {
+    if (!weekKey || !Array.isArray(items) || items.length === 0) return;
+    const history = loadHistory();
+    // Don't overwrite an existing archive entry for the same week
+    if (!history[weekKey]) {
+      history[weekKey] = { items: items.slice(), archivedAt: Date.now() };
+      saveHistory(history);
+    }
+  }
+
+  // --- State ---
+  let state = {
+    week: getISOWeekKey(new Date()),
+    items: [] // preserves original casing for display
+  };
+
+  const stored = loadState();
+  if (stored && stored.week === state.week && Array.isArray(stored.items)) {
+    state.items = normalizeItems(stored.items);
+    // Persist migration if anything changed
+    saveState(state);
+  } else {
+    // Week has rolled over (or first run) — archive previous week if it had data
+    if (stored && stored.week && Array.isArray(stored.items)) {
+      archiveWeek(stored.week, normalizeItems(stored.items));
+    }
+    saveState(state);
+  }
+
+  // --- DOM ---
+  const mainView      = document.getElementById('mainView');
+  const successScreen = document.getElementById('successScreen');
+  const counterEl     = document.getElementById('counterCurrent');
+  const progressFill  = document.getElementById('progressFill');
+  const btnAdd        = document.getElementById('btnAdd');
+  const inputForm     = document.getElementById('inputForm');
+  const inputItem     = document.getElementById('inputItem');
+  const btnCancel     = document.getElementById('btnCancel');
+  const feedback      = document.getElementById('feedback');
+  const itemsContainer = document.getElementById('itemsContainer');
+  const deleteHint    = document.getElementById('deleteHint');
+  const successList   = document.getElementById('successList');
+  const tabsEl        = document.getElementById('tabs');
+  const tabButtons    = tabsEl.querySelectorAll('.tab');
+  const historyView   = document.getElementById('historyView');
+  const historyListEl = document.getElementById('historyList');
+  const modalOverlay  = document.getElementById('modalOverlay');
+  const modalSub      = document.getElementById('modalSub');
+  const modalCancel   = document.getElementById('modalCancel');
+  const modalConfirm  = document.getElementById('modalConfirm');
+
+  let currentTab = 'tracker';
+  let deleteMode = false; // ephemeral UI state, not persisted
+  let pendingDeleteIndex = null; // index in state.items awaiting modal confirm
+
+  // --- Rendering ---
+  function render() {
+    const count = state.items.length;
+    counterEl.textContent = count;
+    progressFill.style.width = Math.min(100, (count / GOAL) * 100) + '%';
+
+    if (currentTab === 'tracker') {
+      historyView.classList.remove('active');
+      if (count >= GOAL) {
+        showSuccess();
+      } else {
+        mainView.classList.remove('hidden');
+        successScreen.classList.remove('active');
+      }
+    } else {
+      // History tab: hide both tracker subviews
+      mainView.classList.add('hidden');
+      successScreen.classList.remove('active');
+      historyView.classList.add('active');
+      renderHistory();
+    }
+
+    renderCategorized(itemsContainer, state.items, true);
+    deleteHint.classList.toggle('active', deleteMode && state.items.length > 0);
+  }
+
+  // Group items by category, render only non-empty sections.
+  // Items keep their *original* index in state.items via data-index for delete.
+  function renderCategorized(targetEl, items, emptyMessage) {
+    targetEl.innerHTML = '';
+
+    if (items.length === 0) {
+      if (emptyMessage) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = 'Noch nichts eingetragen.';
+        targetEl.appendChild(empty);
+      }
+      return;
+    }
+
+    // Bucket by category, remembering original index
+    const buckets = { gemuese: [], obst: [], huelsen: [] };
+    items.forEach((it, idx) => {
+      const cat = buckets[it.category] ? it.category : 'gemuese';
+      buckets[cat].push({ item: it, index: idx });
+    });
+
+    CATEGORY_ORDER.forEach(cat => {
+      const bucket = buckets[cat];
+      if (bucket.length === 0) return;
+
+      const section = document.createElement('div');
+      section.className = 'category-section';
+
+      const heading = document.createElement('div');
+      heading.className = 'category-heading';
+      heading.textContent = `${CATEGORY_LABELS[cat]} · ${bucket.length}`;
+      section.appendChild(heading);
+
+      const ul = document.createElement('ul');
+      ul.className = 'items-list';
+
+      bucket.forEach(({ item, index }) => {
+        ul.appendChild(buildItemPill(item, index));
+      });
+
+      section.appendChild(ul);
+      targetEl.appendChild(section);
+    });
+  }
+
+  function buildItemPill(item, index) {
+    const li = document.createElement('li');
+    li.className = 'item-pill';
+    if (deleteMode) li.classList.add('deletable');
+    li.dataset.index = String(index);
+
+    const label = document.createElement('span');
+    label.textContent = item.name;
+    li.appendChild(label);
+
+    const xBtn = document.createElement('button');
+    xBtn.type = 'button';
+    xBtn.className = 'pill-delete';
+    xBtn.setAttribute('aria-label', `${item.name} löschen`);
+    xBtn.textContent = '×';
+    xBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      requestDelete(index);
+    });
+    li.appendChild(xBtn);
+
+    attachLongPress(li);
+    return li;
+  }
+
+  // Simple flat list renderer (used by success screen + history body)
+  function renderList(targetEl, items, emptyMessage) {
+    targetEl.innerHTML = '';
+    const normalized = normalizeItems(items);
+    if (normalized.length === 0 && emptyMessage) {
+      const li = document.createElement('li');
+      li.className = 'empty-state';
+      li.textContent = 'Noch nichts eingetragen.';
+      targetEl.appendChild(li);
+      return;
+    }
+    normalized.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'item-pill';
+      li.textContent = item.name;
+      targetEl.appendChild(li);
+    });
+  }
+
+  function showSuccess() {
+    mainView.classList.add('hidden');
+    successScreen.classList.add('active');
+    renderCategorized(successList, state.items, false);
+  }
+
+  // --- Tab switching ---
+  function switchTab(name) {
+    if (name === currentTab) return;
+    currentTab = name;
+    tabButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.view === name);
+    });
+    // If user leaves tracker mid-entry, tidy up the input
+    if (name !== 'tracker') {
+      closeInput();
+      deleteMode = false;
+    }
+    render();
+  }
+
+  // --- History rendering ---
+  // Parse "YYYY-Www" → { year: number, week: number }
+  function parseWeekKey(key) {
+    const m = /^(\d{4})-W(\d{2})$/.exec(key);
+    if (!m) return null;
+    return { year: parseInt(m[1], 10), week: parseInt(m[2], 10) };
+  }
+
+  function formatWeekLabel(key) {
+    const parsed = parseWeekKey(key);
+    if (!parsed) return key;
+    return `KW ${parsed.week} · ${parsed.year}`;
+  }
+
+  function renderHistory() {
+    const history = loadHistory();
+    historyListEl.innerHTML = '';
+
+    // Build entries: current week (always shown) + all archived weeks
+    const entries = [];
+    entries.push({
+      key: state.week,
+      items: state.items,
+      isCurrent: true
+    });
+
+    Object.keys(history)
+      .filter(k => k !== state.week) // safety: don't duplicate current week
+      .forEach(k => {
+        entries.push({
+          key: k,
+          items: Array.isArray(history[k].items) ? history[k].items : [],
+          isCurrent: false
+        });
+      });
+
+    // Sort: current first, then archived by week key descending (newest first)
+    entries.sort((a, b) => {
+      if (a.isCurrent) return -1;
+      if (b.isCurrent) return 1;
+      return b.key.localeCompare(a.key);
+    });
+
+    if (entries.length === 1 && state.items.length === 0) {
+      // Only current week, with no items yet
+      const li = document.createElement('li');
+      li.className = 'history-empty';
+      li.textContent = 'Noch keine Daten. Trag deine erste Frucht oder dein erstes Gemüse ein!';
+      historyListEl.appendChild(li);
+      return;
+    }
+
+    entries.forEach(entry => {
+      historyListEl.appendChild(buildHistoryEntry(entry));
+    });
+  }
+
+  function buildHistoryEntry(entry) {
+    const count = entry.items.length;
+    const reached = count >= GOAL;
+
+    const li = document.createElement('li');
+    li.className = 'history-entry';
+    if (entry.isCurrent) li.classList.add('current');
+
+    // Header (clickable)
+    const header = document.createElement('div');
+    header.className = 'history-header';
+
+    const weekBox = document.createElement('div');
+    weekBox.className = 'history-week';
+
+    const label = document.createElement('span');
+    label.className = 'history-week-label';
+    label.textContent = formatWeekLabel(entry.key);
+    weekBox.appendChild(label);
+
+    if (entry.isCurrent) {
+      const tag = document.createElement('span');
+      tag.className = 'history-week-tag';
+      tag.textContent = 'laufende Woche';
+      weekBox.appendChild(tag);
+    }
+
+    const status = document.createElement('div');
+    status.className = 'history-status';
+
+    const countEl = document.createElement('span');
+    if (reached) {
+      countEl.className = 'history-count done';
+      countEl.textContent = '✅';
+      countEl.setAttribute('aria-label', 'Ziel erreicht');
+    } else {
+      countEl.className = 'history-count';
+      countEl.textContent = `${count} / ${GOAL}`;
+    }
+    status.appendChild(countEl);
+
+    const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    chevron.setAttribute('class', 'chevron');
+    chevron.setAttribute('viewBox', '0 0 24 24');
+    chevron.setAttribute('fill', 'none');
+    chevron.setAttribute('stroke', 'currentColor');
+    chevron.setAttribute('stroke-width', '2.5');
+    chevron.setAttribute('stroke-linecap', 'round');
+    chevron.setAttribute('stroke-linejoin', 'round');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    path.setAttribute('points', '6,9 12,15 18,9');
+    chevron.appendChild(path);
+    status.appendChild(chevron);
+
+    header.appendChild(weekBox);
+    header.appendChild(status);
+
+    // Body (collapsible)
+    const body = document.createElement('div');
+    body.className = 'history-body';
+
+    if (count === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'history-body-empty';
+      empty.textContent = 'Keine Einträge in dieser Woche.';
+      body.appendChild(empty);
+    } else {
+      const ul = document.createElement('ul');
+      ul.className = 'items-list';
+      entry.items.forEach(item => {
+        const pill = document.createElement('li');
+        pill.className = 'item-pill';
+        pill.textContent = (typeof item === 'string') ? item : (item && item.name) || '';
+        ul.appendChild(pill);
+      });
+      body.appendChild(ul);
+    }
+
+    header.addEventListener('click', () => {
+      li.classList.toggle('open');
+    });
+
+    li.appendChild(header);
+    li.appendChild(body);
+    return li;
+  }
+
+  // --- Long-press & delete mode ---
+  function attachLongPress(el) {
+    let timer = null;
+    let startX = 0, startY = 0;
+    let pressed = false;
+    const THRESHOLD = 10; // px movement cancels long-press
+
+    function start(e) {
+      pressed = true;
+      const touch = e.touches ? e.touches[0] : e;
+      startX = touch.clientX;
+      startY = touch.clientY;
+      timer = setTimeout(() => {
+        if (pressed) {
+          // Enter delete mode (or exit if already in it = toggle)
+          setDeleteMode(!deleteMode);
+          // Haptic feedback if supported
+          if (navigator.vibrate) navigator.vibrate(15);
+        }
+        timer = null;
+      }, LONG_PRESS_MS);
+    }
+
+    function move(e) {
+      if (!timer) return;
+      const touch = e.touches ? e.touches[0] : e;
+      const dx = Math.abs(touch.clientX - startX);
+      const dy = Math.abs(touch.clientY - startY);
+      if (dx > THRESHOLD || dy > THRESHOLD) cancel();
+    }
+
+    function cancel() {
+      pressed = false;
+      if (timer) { clearTimeout(timer); timer = null; }
+    }
+
+    el.addEventListener('touchstart', start, { passive: true });
+    el.addEventListener('touchmove', move, { passive: true });
+    el.addEventListener('touchend', cancel);
+    el.addEventListener('touchcancel', cancel);
+    el.addEventListener('mousedown', start);
+    el.addEventListener('mousemove', move);
+    el.addEventListener('mouseup', cancel);
+    el.addEventListener('mouseleave', cancel);
+    // Prevent native context menu on long-press
+    el.addEventListener('contextmenu', (e) => {
+      if (e.cancelable) e.preventDefault();
+    });
+  }
+
+  function setDeleteMode(on) {
+    deleteMode = !!on;
+    render();
+  }
+
+  // --- Delete confirmation modal ---
+  function requestDelete(index) {
+    if (index < 0 || index >= state.items.length) return;
+    pendingDeleteIndex = index;
+    modalSub.textContent = state.items[index].name;
+    modalOverlay.classList.add('active');
+  }
+
+  function closeModal() {
+    modalOverlay.classList.remove('active');
+    pendingDeleteIndex = null;
+  }
+
+  function confirmDelete() {
+    if (pendingDeleteIndex === null) return closeModal();
+    const idx = pendingDeleteIndex;
+    if (idx >= 0 && idx < state.items.length) {
+      state.items.splice(idx, 1);
+      saveState(state);
+    }
+    closeModal();
+    // Exit delete mode if list became empty
+    if (state.items.length === 0) deleteMode = false;
+    render();
+  }
+
+  modalCancel.addEventListener('click', closeModal);
+  modalConfirm.addEventListener('click', confirmDelete);
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+      closeModal();
+    }
+  });
+
+
+  // --- Add logic ---
+  function openInput() {
+    btnAdd.style.display = 'none';
+    inputForm.classList.add('active');
+    feedback.textContent = '';
+    feedback.classList.remove('error');
+    // small delay so iOS scrolls properly
+    setTimeout(() => inputItem.focus(), 50);
+  }
+
+  function closeInput() {
+    inputForm.classList.remove('active');
+    btnAdd.style.display = '';
+    inputItem.value = '';
+    feedback.textContent = '';
+    feedback.classList.remove('error');
+    inputForm.classList.remove('shake');
+  }
+
+  function showError(msg) {
+    feedback.textContent = msg;
+    feedback.classList.add('error');
+  }
+
+  function showInfo(msg) {
+    feedback.textContent = msg;
+    feedback.classList.remove('error');
+    setTimeout(() => {
+      if (feedback.textContent === msg) feedback.textContent = '';
+    }, 2200);
+  }
+
+  function triggerShake() {
+    inputForm.classList.remove('shake');
+    // Force reflow so the animation restarts if shake was just applied
+    void inputForm.offsetWidth;
+    inputForm.classList.add('shake');
+    setTimeout(() => inputForm.classList.remove('shake'), 450);
+  }
+
+  function addItem(rawValue) {
+    const value = rawValue.trim();
+    if (!value) return;
+
+    const normalized = value.toLowerCase();
+    const exists = state.items.some(i => i.name.toLowerCase() === normalized);
+
+    if (exists) {
+      // Duplicate: shake, show error, clear input. Do NOT add, do NOT increment.
+      triggerShake();
+      showError(`"${value}" ist schon in dieser Woche.`);
+      inputItem.value = '';
+      inputItem.focus();
+      return;
+    }
+
+    // capitalize first letter for clean display
+    const display = value.charAt(0).toUpperCase() + value.slice(1);
+    const category = classify(value);
+    state.items.push({ name: display, category });
+    saveState(state);
+    inputItem.value = '';
+    showInfo(`✓ ${display} hinzugefügt`);
+    render();
+
+    if (state.items.length < GOAL) {
+      inputItem.focus();
+    }
+  }
+
+  // --- Event listeners ---
+  btnAdd.addEventListener('click', openInput);
+  btnCancel.addEventListener('click', closeInput);
+
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.view));
+  });
+
+  inputForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    addItem(inputItem.value);
+  });
+
+  inputItem.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeInput();
+    }
+  });
+
+  // Check week rollover when tab becomes visible (e.g. user comes back next week)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      const currentWeek = getISOWeekKey(new Date());
+      if (currentWeek !== state.week) {
+        archiveWeek(state.week, state.items);
+        state = { week: currentWeek, items: [] };
+        saveState(state);
+        render();
+      }
+    }
+  });
+
+  // Initial render
+  render();
+})();
+</script>
+</body>
+</html>
